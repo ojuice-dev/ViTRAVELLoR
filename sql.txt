@@ -1,0 +1,18 @@
+--code for the sql database creation
+CREATE DATABASE datab;
+USE datab;
+
+CREATE TABLE USERS (
+  regnu char(9) PRIMARY KEY,
+  name varchar(15) NOT NULL,
+  password varchar(15) NOT NULL
+);
+
+CREATE TABLE travel (
+  regnumber char(9),
+  User_name varchar(15),
+  from_date date,
+  destination varchar(15),
+  transport varchar(15),
+  details varchar(15)
+)
