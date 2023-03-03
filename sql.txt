@@ -15,4 +15,4 @@ CREATE TABLE travel (
   destination varchar(15),
   transport varchar(15),
   details varchar(15)
-)
+);
