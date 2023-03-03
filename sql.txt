@@ -12,6 +12,7 @@ CREATE TABLE travel (
   regnumber char(9),
   User_name varchar(15),
   from_date date,
+  start varchar(15),
   destination varchar(15),
   transport varchar(15),
   details varchar(15)
