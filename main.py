@@ -2,11 +2,13 @@ import mysql.connector
 
 mydb = mysql.connector.connect(
   host="localhost",
-  user="yourusername",
-  password="yourpassword"
-)
+  port=3006,
+  user="root",
+  password="root")
+
 mycursor = mydb.cursor()
-mycursor.execute("CREATE DATABASE mydatabase")
+mycursor.execute("CREATE DATABASE if not exists mydatabase")
+mycursor.execute("USE mydatabase")
 print("Welcome to ViTraveller!")
 i = 0
 while i == 0:
@@ -20,15 +22,27 @@ while i == 0:
         user = input("Enter your registration number(username):")
         password = input("Enter your password:")
         ###############CHECKING FOR THE USER
-        st = 'SELECT regno, password from USERS'
+        st = 'SELECT * from USERS'
         mycursor.execute(st)
-        records = mycursor.fetchone()
-        mydb.commit()
-        if records[0] == user:
+        allrec = mycursor.fetchall()
+        c=0
+        for i in allrec:
+            if i[0] == user:
+                c=1
+            if i[2] ==  password:
+                c=c+1
+                records = i
+
+        if c==0:
+            print("The username doesn't exist")
+        if c==1:
+            print('Invalid password')
+            print('Try again')
+        if c==2:
             #the user exists
             if records[2] == password:
                 #the password entered is correct
-                print('Welcome',user,'!')
+                print('Welcome',records[1],'!')
                 user_name = records[1]
                 j = 0
                 while j == 0:
@@ -39,45 +53,48 @@ while i == 0:
                     if choice == 9:
                         j = 1
                     elif choice == 1:
-                        st1 = 'SELECT from_date, destination, transport, detail WHERE regnumber = {} FROM travel'.format(user)
-                        mycursor.execute(st1)
-                        mydb.commit()
+                        st1 = 'SELECT from_date, destination, transport, details FROM travel WHERE regnumber = "{}"'.format(user)
                         groups = mycursor.fetchall()
                         for rec in groups:
                             print(rec)
+                        else:
+                            print("No groups found")
                     elif choice == 2:
                         print('Please fill the following questions:')
                         fdate = input('Enter the date of departure in YYYY-MM-DD format:')
+                        start = input('Enter the place of departure:')
                         dest = input('Enter the destination:')
                         trans = input('Enter the mode of transport(PL for airplane, TR for train, CA for car):')
                         name = input('Enter the name of airlines/train/...:')
-                        st2 = 'INSERT INTO travel VALUES ({}, {}, {},{},{},{})'.format(user,user_name,fdate, dest, trans, name)
+                        st2 = "INSERT INTO travel VALUES ('{}', '{}', '{}', '{}', '{}', '{}','{}')".format(user,user_name,fdate, dest, trans, name, start)
                         mycursor.execute(st2)
                         mydb.commit()
+                        
+
                         print('Thank you for your patience!...')
                         print('Successful')
-                        print("The following have the same transport and same name of the airline/train...")
-                        rd = 'select regnumber, User_name, destination, transport, details WHERE(from_date = {} AND transport = {} AND details = {}) FROM travel'.format(fdate,trans, name)
+                        print("The following users share the same transport and name of the airline/train...")
+                        rd = "select User_name, destination, transport, details FROM travel WHERE(from_date = '{}' AND start = '{}' AND transport = '{}' AND details = '{}')".format(fdate, start, trans, name)
                         mycursor.execute(rd)
-                        mydb.commit()
-                        print("The following have the same destination as well")
-                        rd2 = 'select regnumber, User_name, destination, transport, details WHERE(from_date = {} AND transport = {} AND details = {} AND destination = {}) FROM travel'.format(fdate,trans, name, dest)
+                        group1 = mycursor.fetchall()
+                        for rec in group1:
+                            print(rec)
+                        print("The following users share the same destination as well...")
+                        rd2 = "select User_name, destination, transport, details FROM travel WHERE(from_date = '{}' AND start = '{}' AND transport = '{}' AND details = '{}' AND destination = '{}')".format(fdate,start,trans, name, dest)
                         mycursor.execute(rd2)
-                        mydb.commit()
-                        
+                        group2 = mycursor.fetchall()
+                        print(group2)
+                        for rec in group2:
+                            print(rec)
                     else:
                         print("Enter a valid choice!")
                 
-            else:
-                print('Invalid password')
-                print('Try again')
-        else:
-            print("The username doesn't exist")
+            
     elif ch == 1:####################FOR SIGN UP
         temp = 0
         while temp == 0:
             reg_num = input("Enter your registration number(will be your username):")
-            strp = 'SELECT regnu from USERS'
+            strp = 'SELECT regnu from USERS where regnu="{}"'.format(reg_num)
             mycursor.execute(strp)
             user_rec = mycursor.fetchall()
             if len(user_rec) > 0:
@@ -89,10 +106,11 @@ while i == 0:
                 passw = input("Enter your password:")
                 cpassw = input("Re-enter your password:")
                 if passw == cpassw:
-                    strf = "INSERT INTO USERS VALUES ({},{},{})".format(reg_num, Name, passw)
+                    strf = 'INSERT INTO USERS VALUES("{}","{}","{}")'.format(reg_num, Name, passw)
                     print("Successful!")
                     mycursor.execute(strf)
                     mydb.commit()
+                    temp=1
                 else:
                     print("Passwords do not match")
                 
