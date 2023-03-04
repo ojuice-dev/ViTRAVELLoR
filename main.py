@@ -66,7 +66,7 @@ while i == 0:
                         dest = input('Enter the destination:')
                         trans = input('Enter the mode of transport(PL for airplane, TR for train, CA for car):')
                         name = input('Enter the name of airlines/train/...:')
-                        st2 = "INSERT INTO travel VALUES ('{}', '{}', '{}', '{}', '{}', '{}','{}')".format(user,user_name,fdate, dest, trans, name, start)
+                        st2 = "INSERT INTO travel VALUES ('{}', '{}', '{}', '{}', '{}', '{}','{}')".format(user,user_name,start,fdate, dest, trans, name)
                         mycursor.execute(st2)
                         mydb.commit()
                         
